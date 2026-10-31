@@ -71,7 +71,7 @@ The generated module `qsf_gen.py` is tracked. To rebuild it from the MATLAB file
 ### 3. The runs
 
 The scenario of Section VI lives in `model/params.py`. The path coordinate is the polar angle of the payload and
-`V_D` is its rate, 0.8 rad/s, as in the MATLAB code of the paper, so the payload moves at 4 m/s along the circle.
+`V_D` is its rate, 0.8 rad/s, so the payload moves at 4 m/s along the circle.
 A run writes `results/<name>.npz` with the state of the paper, the thrust, the torques, the outputs and the angles
 at every controller step, and the Drake runs also the plant state.
 

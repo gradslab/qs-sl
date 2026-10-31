@@ -201,8 +201,8 @@ window.MathJax = {{tex:{{inlineMath:[["\\\\(","\\\\)"]]}}, svg:{{fontCache:"glob
       <h2>The scenario of the paper</h2>
       <p>The path is the circle \\(h_1 = p_1^2 + p_2^2 - d^{{*2}} = 0\\), \\(h_2 = p_3 - r^* = 0\\) with \\(d^* = {f(P["d_star"], ".0f")}\\)&nbsp;m
       and \\(r^* = {f(P["r_star"], ".0f")}\\)&nbsp;m in the north-east-down frame. The path coordinate is the polar angle
-      \\(h_3 = \\mathrm{{atan2}}(p_2, p_1)\\) and its rate is driven to \\(v_d = {f(P["v_d"], ".1f")}\\)&nbsp;rad/s, as in the MATLAB code
-      behind the figures of the paper, so the payload moves at {f(speed_mps, ".0f")}&nbsp;m/s along the circle. The payload starts at
+      \\(h_3 = \\mathrm{{atan2}}(p_2, p_1)\\) and its rate is driven to \\(v_d = {f(P["v_d"], ".1f")}\\)&nbsp;rad/s, so the payload moves at
+      {f(speed_mps, ".0f")}&nbsp;m/s along the circle. The payload starts at
       \\(p(0) = ({f(P["p0"][0], ".0f")}, {f(P["p0"][1], ".0f")}, {f(P["p0"][2], ".0f")})\\)&nbsp;m with the pendulum at
       \\(\\alpha = {f(P["alpha0_deg"], ".0f")}^\\circ\\), \\(\\beta = {f(P["beta0_deg"], ".0f")}^\\circ\\) and the quadrotor at
       \\(\\theta = {f(P["theta0_deg"], ".0f")}^\\circ\\), \\(\\phi = {f(P["phi0_deg"], ".0f")}^\\circ\\), \\(\\psi = {f(P["psi0_deg"], ".0f")}^\\circ\\),
@@ -403,12 +403,12 @@ python3 web/build_page.py</code></pre>
       <span class="sec-tag">Citation</span>
       <h2>Citation</h2>
     </div>
-<pre><code>@misc{{allawati2026quasistatic,
-  author       = {{Mohamed Al Lawati and Adeel Akhtar}},
-  title        = {{Quasi-Static Fault-Tolerant Feedback Control of a Quadrotor
-                  Carrying a Slung Payload under Rotor Failure}},
-  howpublished = {{Manuscript}},
-  year         = {{2026}}
+<pre><code>@unpublished{{allawati2026quasistatic,
+  author = {{Mohamed Al Lawati and Adeel Akhtar}},
+  title  = {{Quasi-Static Fault-Tolerant Feedback Control of a Quadrotor
+            Carrying a Slung Payload under Rotor Failure}},
+  note   = {{Under review}},
+  year   = {{2026}}
 }}</code></pre>
   </section>
 

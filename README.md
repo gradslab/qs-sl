@@ -28,11 +28,11 @@ project page is built from those outputs by `sim/web/build_page.py`, and no numb
 ## Citation
 
 ```bibtex
-@misc{allawati2026quasistatic,
-  author       = {Mohamed Al Lawati and Adeel Akhtar},
-  title        = {Quasi-Static Fault-Tolerant Feedback Control of a Quadrotor
-                  Carrying a Slung Payload under Rotor Failure},
-  howpublished = {Manuscript},
-  year         = {2026}
+@unpublished{allawati2026quasistatic,
+  author = {Mohamed Al Lawati and Adeel Akhtar},
+  title  = {Quasi-Static Fault-Tolerant Feedback Control of a Quadrotor
+            Carrying a Slung Payload under Rotor Failure},
+  note   = {Under review},
+  year   = {2026}
 }
 ```
