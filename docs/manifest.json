@@ -1,0 +1,48 @@
+{
+ "figs": [
+  {
+   "file": "figs/W_snapshots.png",
+   "MB": 0.17
+  },
+  {
+   "file": "figs/W_outputs.png",
+   "MB": 0.08
+  },
+  {
+   "file": "figs/W_inputs.png",
+   "MB": 0.15
+  },
+  {
+   "file": "figs/W_config.png",
+   "MB": 0.15
+  },
+  {
+   "file": "figs/W_pendulum.png",
+   "MB": 0.11
+  },
+  {
+   "file": "figs/W_attitude.png",
+   "MB": 0.21
+  },
+  {
+   "file": "figs/W_yaw.png",
+   "MB": 0.07
+  },
+  {
+   "file": "figs/W_distance.png",
+   "MB": 0.09
+  },
+  {
+   "file": "figs/W_compare.png",
+   "MB": 0.1
+  }
+ ],
+ "anim": {
+  "follow.mp4": 2.31,
+  "side.mp4": 0.4,
+  "orbit.mp4": 1.66,
+  "onpath_follow.mp4": 1.98,
+  "follow.gif": 4.85,
+  "side.gif": 0.4
+ }
+}

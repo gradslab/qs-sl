@@ -1,0 +1,6 @@
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+sim/results/checker_ground.png
+sim/results/anim/*_t*.png

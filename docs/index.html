@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fault-Tolerant Path Following for a Quadrotor with a Slung Payload</title>
+<meta name="description" content="Simulation study for quasi-static fault-tolerant feedback control of a quadrotor carrying a slung payload under a complete single-rotor failure.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css">
+<script>
+window.MathJax = {tex:{inlineMath:[["\\(","\\)"]]}, svg:{fontCache:"global"}};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="mark">Slung payload &middot; rotor failure</span>
+  <span class="spacer"></span>
+  <nav>
+    <a href="#gallery">Animations</a>
+    <a href="#scenario">Scenario</a>
+    <a href="#outputs">Outputs</a>
+    <a href="#invariance">Invariance</a>
+    <a href="#implementations">Implementations</a>
+    <a href="#parameters">Parameters</a>
+    <a href="#reproduce">Reproduce</a>
+  </nav>
+  <button id="theme" class="btn" type="button" aria-label="Switch colour theme">Theme</button>
+</header>
+
+<div class="shell">
+  <aside class="rail">
+    <div class="rail-h">On this page</div>
+    <ol>
+      <li><a href="#gallery">Animations</a></li>
+      <li><a href="#scenario">The scenario of the paper</a></li>
+      <li><a href="#outputs">Outputs and inputs</a></li>
+      <li><a href="#configuration">Configuration and attitude</a></li>
+      <li><a href="#invariance">Starting on the path</a></li>
+      <li><a href="#implementations">Three implementations</a></li>
+      <li><a href="#parameters">Parameters</a></li>
+      <li><a href="#reproduce">Reproducing this</a></li>
+      <li><a href="#cite">Citation</a></li>
+    </ol>
+  </aside>
+  <main>
+
+  <section class="hero">
+    <div class="eyebrow">Supplementary simulation study</div>
+    <h1>Quasi-Static Fault-Tolerant Feedback Control of a Quadrotor Carrying a Slung Payload under Rotor Failure</h1>
+    <p class="byline">Mohamed Al Lawati and Adeel Akhtar
+      <span class="aff">Sultan Qaboos University and New Jersey Institute of Technology</span></p>
+    <p class="lede">A quadrotor carries a payload on a massless rod pivoted at its center of mass. One rotor has failed
+      completely, so three propellers remain and the roll torque is tied to the thrust and the yaw torque. The
+      quasi-static feedback of the paper is designed for the faulty dynamics. It drives the payload onto a geometric
+      path, keeps the path invariant, assigns the motion along it and keeps the yaw rate bounded. This page carries a
+      Drake simulation of the scenario of the paper, the figures of the paper regenerated from it, a run that starts on
+      the path, a comparison of three implementations of the closed loop, and everything needed to reproduce them.</p>
+    <div class="buttons">
+      <a class="btn primary" href="https://github.com/gradslab/qs-sl">Code and data</a>
+      <a class="btn" href="#invariance">Invariance</a>
+      <a class="btn" href="#reproduce">Reproduce the figures</a>
+    </div>
+  </section>
+
+  <section class="sec" id="gallery">
+    <div class="sec-head">
+      <span class="sec-tag">Animations</span>
+      <h2>The payload converges to the circle while the airframe spins</h2>
+      <p>Rendered in Drake from the logged run. The airframe is a Skydio X2 with the mass and inertia of the paper,
+      the rod is 3&nbsp;m long and the payload is a 0.2&nbsp;kg sphere. The failed rotor is
+      marked in red. The green dots are the path, a horizontal circle of radius 5&nbsp;m at
+      3&nbsp;m above the ground, and the white line is the trace of the payload. The payload starts
+      8.6&nbsp;m from the path with the quadrotor pitched by 45&nbsp;degrees and rolled
+      by 20&nbsp;degrees. The failure ties the roll torque to the thrust and the yaw torque. With the roll
+      torque near zero the yaw torque equals \(c_d u_t\), and the damping of the paper balances it at
+      \(\Omega_3 = c_d u_t / (k_\Omega J_3)\), which is 3.52&nbsp;rad/s for the thrust of
+      this run. So the airframe spins up within 1.0&nbsp;s and turns about its vertical axis at
+      about 3.6&nbsp;rad/s from then on, while the payload converges to the circle and
+      settles at the commanded angular speed of 0.8&nbsp;rad/s, which is 4&nbsp;m/s along
+      the circle.</p>
+    </div>
+<div class="grid2"><div class="card media"><span class="pill neutral">following camera</span><div class="plate"><video src="anim/follow.mp4" poster="anim/follow.jpg" autoplay loop muted playsinline preload="metadata" aria-label="scenario of the paper, camera following the system"></video></div></div><div class="card media"><span class="pill neutral">side on</span><div class="plate"><video src="anim/side.mp4" poster="anim/side.jpg" autoplay loop muted playsinline preload="metadata" aria-label="scenario of the paper, fixed camera"></video></div></div></div>
+    <div class="sec-head" style="margin-top:2.6rem">
+      <h2>Orbiting camera</h2>
+      <p>The same run seen from a camera that circles the path once over the 20&nbsp;s of the run.</p>
+    </div>
+<div class="grid2"><div class="card media"><span class="pill neutral">orbit</span><div class="plate"><video src="anim/orbit.mp4" poster="anim/orbit.jpg" autoplay loop muted playsinline preload="metadata" aria-label="scenario of the paper, orbiting camera"></video></div></div><div class="card media"><span class="pill ok">starting on the path</span><div class="plate"><video src="anim/onpath_follow.mp4" poster="anim/onpath_follow.jpg" autoplay loop muted playsinline preload="metadata" aria-label="hover start on the path, camera following the system"></video></div><p>The hover start on the path. The payload accelerates to the commanded speed without leaving the circle. Details <a href='#invariance'>below</a>.</p></div></div>
+    <div class="stats" style="margin-top:2.2rem">
+      <div class="stat"><div class="n">9.2 s</div>
+        <div class="k">after which the payload stays within 1&nbsp;cm of the path, from 8.6&nbsp;m at the start</div></div>
+      <div class="stat"><div class="n">0.23 mm</div>
+        <div class="k">distance of the payload to the path at the end of the run, set by the rotational inertia of the spherical payload</div></div>
+      <div class="stat"><div class="n">3.55 rad/s</div>
+        <div class="k">yaw rate after 10&nbsp;s. The yaw angle grows by 70&nbsp;rad over the run and the yaw rate never exceeds 4.26&nbsp;rad/s</div></div>
+      <div class="stat"><div class="n">52.8 N</div>
+        <div class="k">thrust after 5&nbsp;s, against a weight of 51.0&nbsp;N. The peak is 62.6&nbsp;N during the transient</div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="scenario">
+    <div class="sec-head">
+      <span class="sec-tag">Scenario</span>
+      <h2>The scenario of the paper</h2>
+      <p>The path is the circle \(h_1 = p_1^2 + p_2^2 - d^{*2} = 0\), \(h_2 = p_3 - r^* = 0\) with \(d^* = 5\)&nbsp;m
+      and \(r^* = -3\)&nbsp;m in the north-east-down frame. The path coordinate is the polar angle
+      \(h_3 = \mathrm{atan2}(p_2, p_1)\) and its rate is driven to \(v_d = 0.8\)&nbsp;rad/s, as in the MATLAB code
+      behind the figures of the paper, so the payload moves at 4&nbsp;m/s along the circle. The payload starts at
+      \(p(0) = (-2, 8, -11)\)&nbsp;m with the pendulum at
+      \(\alpha = -30^\circ\), \(\beta = 20^\circ\) and the quadrotor at
+      \(\theta = 45^\circ\), \(\phi = 20^\circ\), \(\psi = -60^\circ\),
+      with the velocities of Section VI. The controller is the quasi-static feedback (17), (26) of the paper with the
+      damping (2), and the gains place the poles of the three chains at the values of the paper.</p>
+    </div>
+      <figure class="figblock">
+        <div class="plate"><img src="anim/snapshots.png" alt="" loading="lazy"></div>
+        <figcaption class="cap"><b>Snapshots of the Drake run</b> at t = 0, 1, 1.5, 2, 5, 6.5, 8 and 10.5 s, the times of Fig. 2 of the paper, composed from one camera. The white line is the trace of the payload up to t = 10.5 s.</figcaption>
+      </figure>
+      <figure class="figblock">
+        <div class="plate"><img src="figs/W_snapshots.png" alt="" loading="lazy"></div>
+        <figcaption class="cap"><b>Fig. 2 of the paper from the Drake log.</b> The same times, drawn in the north-east-down axes of the paper. The quadrotor is drawn larger than life, the red ring is the failed rotor and the black dot is the payload.</figcaption>
+      </figure>
+  </section>
+
+  <section class="sec" id="outputs">
+    <div class="sec-head">
+      <span class="sec-tag">Outputs and inputs</span>
+      <h2>Outputs and inputs</h2>
+      <p>The two transverse outputs decay to zero and the speed error vanishes, as the transverse dynamics (31) of the
+      paper require. The thrust settles at 52.8&nbsp;N, a little above the weight because the
+      pendulum leans inward on the circle. After the transient the torques stay small. The roll torque
+      \(\tau_1 = c_1 u_t - c_2\tau_3\) is not free: it is set by the thrust and the yaw torque through the failure.</p>
+    </div>
+      <figure class="figblock">
+        <div class="plate"><img src="figs/W_outputs.png" alt="" loading="lazy"></div>
+        <figcaption class="cap"><b>Fig. 4 of the paper from the Drake log.</b> The outputs \(h_1\), \(h_2\), the unwrapped path coordinate \(h_3\) and the speed error \(\dot h_3 - v_d\). The payload is within 10 cm of the path after 6.9 s, within 1 cm after 9.2 s and within 1 mm after 11.4 s. The speed error is below 1 % of \(v_d\) after 7.3 s and below 5.1&times;10<sup>-4</sup> rad/s after 10 s.</figcaption>
+      </figure>
+      <figure class="figblock">
+        <div class="plate"><img src="figs/W_inputs.png" alt="" loading="lazy"></div>
+        <figcaption class="cap"><b>Fig. 3 of the paper from the Drake log.</b> The thrust and the three applied torques, with the torque axes clipped to &plusmn;0.05 Nm as in the paper. The thrust ranges over [12.7, 62.6] N and the torques peak at (15.7, 20.1, 1.5) Nm in the first second. After 5 s they stay below (0.038, 0.037, 0.004) Nm.</figcaption>
+      </figure>
+  </section>
+
+  <section class="sec" id="configuration">
+    <div class="sec-head">
+      <span class="sec-tag">Configuration</span>
+      <h2>Configuration, pendulum and attitude</h2>
+      <p>The payload position, the pendulum angles and the Euler angles of the quadrotor, then the pendulum direction
+      with its angular velocity and the nine entries of the rotation matrix. The yaw angle grows without bound, by
+      70&nbsp;rad over the run, while its rate stays bounded. This is the internal dynamics of
+      Theorem 1: the yaw rate and the state \(\xi_2 = J_1\Omega_1 + J_3 c_2\Omega_3\) are bounded along the solution.</p>
+    </div>
+      <figure class="figblock">
+        <div class="plate"><img src="figs/W_config.png" alt="" loading="lazy"></div>
+        <figcaption class="cap"><b>Fig. 5 of the paper from the Drake log.</b> Payload position, pendulum angles and 2-1-3 Euler angles. The pitch and roll oscillate at the period of the circle once the payload is on it.</figcaption>
+      </figure>
+      <figure class="figblock">
+        <div class="plate"><img src="figs/W_pendulum.png" alt="" loading="lazy"></div>
+        <figcaption class="cap"><b>Fig. 6 of the paper from the Drake log.</b> The pendulum direction \(q\) and its angular velocity \(\omega\). The pendulum never swings further than 31.5 degrees from the vertical.</figcaption>
+      </figure>
+      <figure class="figblock">
+        <div class="plate"><img src="figs/W_attitude.png" alt="" loading="lazy"></div>
+        <figcaption class="cap"><b>Fig. 7 of the paper from the Drake log.</b> The rotation matrix of the quadrotor. The first two columns turn at the yaw rate. The third column is \(b_3\), which does not depend on the yaw: it carries the small tilt that holds the payload on the circle and turns with the period of the circle, and \(R_{33}\) stays near 0.97.</figcaption>
+      </figure>
+      <figure class="figblock">
+        <div class="plate"><img src="figs/W_yaw.png" alt="" loading="lazy"></div>
+        <figcaption class="cap"><b>The internal state.</b> Left: the yaw rate \(\dot\psi\) and the body rate \(\Omega_3\), which settle at 3.55 rad/s with a peak of 4.26 rad/s. Middle: the internal state \(\xi_2\), bounded by 2.02 Nms. Right: the two functions that must stay positive on \(X_d\). Over the run \(\langle b_3, q\rangle \ge 0.61\) and \(\cos\alpha\cos\beta \ge 0.79\), so the solution stays in the domain of the controller and \(\tilde A\) stays invertible, with \(|\det\tilde A| \ge 83,048\).</figcaption>
+      </figure>
+  </section>
+
+  <section class="sec" id="invariance">
+    <div class="sec-head">
+      <span class="sec-tag">Invariance</span>
+      <h2>Starting on the path</h2>
+      <p>At hover with the payload on the path, the pendulum vertical and the quadrotor level, every transverse
+      coordinate is zero, so the state lies on the path-following manifold whatever the heading. The paper states that
+      from such a start the transient keeps the payload on the path. In this run the payload starts at rest on the
+      circle and the tangential input accelerates it to \(v_d\). The transverse coordinates stay at zero in continuous
+      time, and in the sampled Drake run the payload never leaves the circle by more than
+      0.23&nbsp;mm.</p>
+    </div>
+      <figure class="figblock">
+        <div class="plate"><img src="figs/W_distance.png" alt="" loading="lazy"></div>
+        <figcaption class="cap"><b>Distance of the payload to the path and the speed error</b> for the start of the paper and for the hover start on the path, on a logarithmic scale. The sharp dips are the instants at which a signed error passes through zero. From the hover start the distance stays below 0.23 mm for the whole run, which is the residual set by the rotational inertia of the spherical payload, while the speed error decays from 0.8 rad/s and is below 1 % of \(v_d\) after 7.3 s.</figcaption>
+      </figure>
+    <div class="stats">
+      <div class="stat"><div class="n">0.23 mm</div>
+        <div class="k">largest distance of the payload to the path over the run from the hover start</div></div>
+      <div class="stat"><div class="n">[50.9, 52.8] N</div>
+        <div class="k">thrust range from the hover start, against 51.0&nbsp;N of weight</div></div>
+      <div class="stat"><div class="n">0.50 Nm</div>
+        <div class="k">largest applied torque from the hover start, against 20.1&nbsp;Nm from the start of the paper</div></div>
+      <div class="stat"><div class="n">3.59 rad/s</div>
+        <div class="k">largest yaw rate from the hover start</div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="implementations">
+    <div class="sec-head">
+      <span class="sec-tag">Implementations</span>
+      <h2>Three implementations of the closed loop</h2>
+      <p>The MATLAB code of the paper integrates the coordinate-free model (1) with ode45 and evaluates the controller
+      from expressions generated by Maple. The Python port evaluates the same expressions, translated line by line, on
+      the same model. At the initial condition and at 59 random states its thrust, torques, output chains and vector
+      field agree with MATLAB to a relative 7.8&times;10<sup>-12</sup>, and the two closed-loop runs with tight tolerances
+      agree to 4.8&times;10<sup>-10</sup>&nbsp;m in the payload position. A verification gate checks the expressions against the closed
+      loop itself: the time derivative of every term of the two sixth-order chains equals the next term, and at the top
+      of each chain it equals the commanded \(\nu_1\) or \(\nu_3\), which tests the drift terms and the matrix
+      \(\tilde A\) together. The Drake run replaces the model by a multibody plant: a free rigid body for the quadrotor and
+      one rigid body for the pendulum, joined by a universal joint at the center of mass of the quadrotor, with the
+      controller sampled at 1000&nbsp;Hz. A second gate checks that the accelerations of this plant equal those
+      of the model (1) at random states and inputs to 2.6&times;10<sup>-14</sup> relative, with a point-mass payload.</p>
+    </div>
+      <figure class="figblock">
+        <div class="plate"><img src="figs/W_compare.png" alt="" loading="lazy"></div>
+        <figcaption class="cap"><b>Drake against the port.</b> Left: the payload position difference, which is an offset along the circle. Middle: the thrust difference. Right: the distance to the path of both runs, with a dip where the Drake run crosses the path before settling on its residual. The offset along the circle comes from the zero-order hold: the body spins at 3.6 rad/s while the command is held, which biases the speed along the path by 5.3&times;10<sup>-4</sup> rad/s at 1 kHz and 0.0012 rad/s at 400 Hz, measured as the mean difference of \(\dot h_3\) after 10 s. The residual distance to the path of 0.23 mm comes from the payload being a sphere: with a point mass the same run settles to 8.3&times;10<sup>-4</sup> mm.</figcaption>
+      </figure>
+<div class="tablewrap"><table><thead><tr><th></th><th class="num">Port, point mass</th><th class="num">Drake, 1 kHz</th><th class="num">Drake, point mass</th><th class="num">Drake, 400 Hz</th></tr></thead><tbody><tr><td>Payload within 1 cm of the path after [s]</td><td class="num">9.28</td><td class="num">9.25</td><td class="num">9.28</td><td class="num">9.26</td></tr><tr><td>Distance to the path after 10 s [mm]</td><td class="num">&lt; 4.9</td><td class="num">&lt; 4.7</td><td class="num">&lt; 5.0</td><td class="num">&lt; 4.8</td></tr><tr><td>Distance to the path at 20 s [mm]</td><td class="num">2.3&times;10<sup>-4</sup></td><td class="num">0.23</td><td class="num">8.3&times;10<sup>-4</sup></td><td class="num">0.23</td></tr><tr><td>Speed error after 10 s [rad/s]</td><td class="num">&lt; 6.4&times;10<sup>-4</sup></td><td class="num">&lt; 5.1&times;10<sup>-4</sup></td><td class="num">&lt; 4.7&times;10<sup>-4</sup></td><td class="num">&lt; 0.0012</td></tr><tr><td>Yaw rate after 10 s [rad/s]</td><td class="num">3.55</td><td class="num">3.55</td><td class="num">3.55</td><td class="num">3.55</td></tr><tr><td>Thrust after 5 s [N]</td><td class="num">[52.81, 53.92]</td><td class="num">[52.81, 53.91]</td><td class="num">[52.81, 53.91]</td><td class="num">[52.80, 53.89]</td></tr><tr><td colspan="5"><b>Against the port</b></td></tr><tr><td>Transverse difference after 10 s [mm]</td><td class="num"></td><td class="num">0.27</td><td class="num">0.05</td><td class="num">0.25</td></tr><tr><td>Offset along the circle at 20 s [mm]</td><td class="num"></td><td class="num">66</td><td class="num">62</td><td class="num">159</td></tr><tr><td>Thrust difference after 5 s [N]</td><td class="num"></td><td class="num">0.009</td><td class="num">0.009</td><td class="num">0.022</td></tr><tr><td>Torque difference after 5 s [Nm]</td><td class="num"></td><td class="num">2.1&times;10<sup>-4</sup></td><td class="num">2.1&times;10<sup>-4</sup></td><td class="num">5.4&times;10<sup>-4</sup></td></tr><tr><td>Mean speed difference after 10 s [rad/s]</td><td class="num"></td><td class="num">-5.3&times;10<sup>-4</sup></td><td class="num">-4.8&times;10<sup>-4</sup></td><td class="num">-0.0012</td></tr></tbody></table></div><p class="cap">The port integrates the coordinate-free model with a tolerance of 10<sup>-9</sup>. The Drake plant is integrated with a third-order Runge-Kutta scheme at 4 kHz. The spherical payload adds a rotational inertia of 2.9&times;10<sup>-4</sup> kg m<sup>2</sup> to the 1.8 kg m<sup>2</sup> of the point mass about the pivot, and the universal joint lets it swing but not spin about the rod.</p>
+    <div style="height:1.4rem"></div>
+<div class="tablewrap"><table><thead><tr><th>Verification gates</th><th class="num">Value</th></tr></thead><tbody><tr><td>Port against MATLAB, both with the default tolerances of ode45: largest payload position difference</td><td class="num">26 mm</td></tr><tr><td>Port against MATLAB, both with tight tolerances: largest payload position difference</td><td class="num">0.000 mm</td></tr><tr><td>Port against MATLAB, tight tolerances: largest thrust difference</td><td class="num">1.3&times;10<sup>-8</sup> N</td></tr><tr><td>Controller, torques and vector field at 60 states against MATLAB</td><td class="num">relative difference 7.8&times;10<sup>-12</sup></td></tr><tr><td>Chain gate, largest relative mismatch of a derivative along the closed loop</td><td class="num">6.9&times;10<sup>-10</sup></td></tr><tr><td>Plant gate, accelerations of the Drake plant against the model (1)</td><td class="num">relative difference 2.6&times;10<sup>-14</sup></td></tr></tbody></table></div>
+  </section>
+
+  <section class="sec" id="parameters">
+    <div class="sec-tag">Parameters</div>
+    <div class="sec-head">
+      <h2>Every parameter</h2>
+      <p>These are the complete settings behind every figure on this page. They are those of Section VI of the paper.</p>
+    </div>
+    <h3 style="margin:1.6rem 0 .7rem">Slung payload system</h3><div class="tablewrap"><table><thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody><tr><td>Quadrotor mass and inertia</td><td>m<sub>q</sub> = 5 kg, J = diag(0.03, 0.03, 0.05) kg m<sup>2</sup></td></tr><tr><td>Payload and rod</td><td>m<sub>p</sub> = 0.2 kg at L = 3 m from the pivot on a massless rod. In Drake the payload is a sphere of radius 0.06 m</td></tr><tr><td>Rotor distance and drag ratio</td><td>&#8467; = 0.2 m, c<sub>d</sub> = 0.01, so c<sub>1</sub> = 0.1 m and c<sub>2</sub> = 10</td></tr><tr><td>Failure</td><td>the rotor on the +b<sub>2</sub> arm is lost, &tau;<sub>1</sub> = c<sub>1</sub> u<sub>t</sub> &minus; c<sub>2</sub> &tau;<sub>3</sub></td></tr><tr><td>Damping</td><td>k<sub>&Omega;</sub> = 3 s<sup>-1</sup> on every axis, applied torque &tau;<sub>a</sub> = &tau; &minus; k<sub>&Omega;</sub> J &Omega;</td></tr><tr><td>Gravity</td><td>9.81 m/s<sup>2</sup>, north-east-down frame</td></tr></tbody></table></div><h3 style="margin:1.6rem 0 .7rem">Path and controller</h3><div class="tablewrap"><table><thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody><tr><td>Path</td><td>x<sup>2</sup> + y<sup>2</sup> = 5<sup>2</sup>, z = -3 m, path coordinate h<sub>3</sub> = atan2(p<sub>2</sub>, p<sub>1</sub>)</td></tr><tr><td>Speed reference</td><td>v<sub>d</sub> = 0.8 rad/s (4 m/s along the circle)</td></tr><tr><td>Poles of the h<sub>1</sub> chain (order 6)</td><td>{-1.0, -1.5, -2.0, -2.5, -3.0, -3.5}, K<sub>1</sub> = (78.75, 250.875, 319, 208.125, 73.75, 13.5)</td></tr><tr><td>Poles of the h<sub>2</sub> chain (order 2)</td><td>{-1.0, -1.2}, K<sub>2</sub> = (1.2, 2.2)</td></tr><tr><td>Poles of the speed chain of h<sub>3</sub> (order 5)</td><td>{-1.0, -1.5, -2.0, -2.5, -3.0}, K<sub>3</sub> = (22.5, 65.25, 72.5, 38.75, 10)</td></tr><tr><td>Feedback</td><td>thrust from (17), torques &tau;<sub>2</sub>, &tau;<sub>3</sub> from (26), &tau;<sub>1</sub> from the failure, then the damping</td></tr></tbody></table></div><h3 style="margin:1.6rem 0 .7rem">Start of the paper</h3><div class="tablewrap"><table><thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody><tr><td>Payload</td><td>p(0) = (-2, 8, -11) m, v(0) = (-0.2, 0.1, 0.5) m/s</td></tr><tr><td>Pendulum</td><td>&alpha; = -30&deg;, &beta; = 20&deg;, rates (-0.2, 0.1) rad/s</td></tr><tr><td>Quadrotor</td><td>&theta; = 45&deg;, &phi; = 20&deg;, &psi; = -60&deg;, &Omega;(0) = (-0.1, 0.3, 0.2) rad/s</td></tr><tr><td>Horizon</td><td>20 s</td></tr></tbody></table></div><h3 style="margin:1.6rem 0 .7rem">Hover start on the path</h3><div class="tablewrap"><table><thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody><tr><td>State</td><td>payload at rest on the circle, pendulum vertical, quadrotor level with zero rates. Every transverse coordinate is zero</td></tr></tbody></table></div><h3 style="margin:1.6rem 0 .7rem">Simulation</h3><div class="tablewrap"><table><thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody><tr><td>MATLAB</td><td>coordinate-free model (1), ode45 with its default tolerances, as in the paper</td></tr><tr><td>Python port</td><td>the same model and expressions, Dormand-Prince 8(5,3) with relative tolerance 10<sup>-9</sup></td></tr><tr><td>Drake</td><td>MultibodyPlant, continuous, third-order Runge-Kutta at 4 kHz, controller at 1000 Hz with a zero-order hold on the body-frame thrust and torque</td></tr><tr><td>Rendering</td><td>VTK render engine of Drake. The airframe is the Skydio X2 mesh of the MuJoCo Menagerie (Apache-2.0), scaled so that the rotor hubs sit at &#8467;, and the airframe, rod and payload are drawn at three times their size</td></tr></tbody></table></div>
+  </section>
+
+  <section class="sec" id="reproduce">
+    <div class="sec-head">
+      <span class="sec-tag">Reproduce</span>
+      <h2>Reproducing this</h2>
+      <p>The simulation code is in the repository under <code>sim/</code> and the MATLAB code of the paper under
+      <code>matlab/</code>. The verification gates run first.</p>
+    </div>
+<pre><code><span class="c"># set up and verify</span>
+git clone https://github.com/gradslab/qs-sl.git
+cd qs-sl/sim
+pip install -r requirements.txt
+python3 model/test_chains.py
+python3 model/compare_matlab.py
+python3 drake/verify_plant.py
+
+<span class="c"># the runs behind every number and figure</span>
+python3 model/simulate_port.py --tight
+python3 drake/sim_drake.py
+python3 drake/sim_drake.py --start on-path --tag _onpath
+python3 drake/sim_drake.py --point-mass --tag _pointmass
+python3 drake/sim_drake.py --hz 400 --tag _400hz
+
+<span class="c"># the numbers and the figures</span>
+python3 metrics.py
+python3 paper_figures.py
+python3 paper_figures.py --web
+
+<span class="c"># animations (Drake VTK renderer and ffmpeg), then the page</span>
+python3 drake/render_drake.py drake_run --snapshots 0,1,1.5,2,5,6.5,8,10.5 --cam wide
+for c in follow side orbit; do python3 drake/render_drake.py drake_run --cam $c; done
+python3 drake/render_drake.py drake_run_onpath --cam follow
+python3 web/anim_web.py
+python3 web/page_numbers.py
+python3 web/build_page.py</code></pre>
+  </section>
+
+  <section class="sec" id="cite">
+    <div class="sec-head">
+      <span class="sec-tag">Citation</span>
+      <h2>Citation</h2>
+    </div>
+<pre><code>@misc{allawati2026quasistatic,
+  author       = {Mohamed Al Lawati and Adeel Akhtar},
+  title        = {Quasi-Static Fault-Tolerant Feedback Control of a Quadrotor
+                  Carrying a Slung Payload under Rotor Failure},
+  howpublished = {Manuscript},
+  year         = {2026}
+}</code></pre>
+  </section>
+
+  <footer>
+    <div class="rulebar"></div>
+    <p>GRaDS Lab, New Jersey Institute of Technology.
+      Every figure and number on this page is generated by the scripts above.
+      <a href="https://github.com/gradslab/qs-sl">Repository</a>.</p>
+  </footer>
+
+  </main>
+</div>
+<script src="assets/js/site.js"></script>
+</body>
+</html>
